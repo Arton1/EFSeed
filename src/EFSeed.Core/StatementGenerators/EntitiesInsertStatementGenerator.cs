@@ -28,7 +28,7 @@ public class EntitiesInsertStatementGenerator : IEntitiesStatementGenerator
         script.Append($"INSERT INTO {tableRef} (");
         script.Append(string.Join(", ", columns));
         script.Append(") VALUES ");
-        var properties = entityModel.GetProperties().ToList();
+        var valuesListGenerator = new SqlValuesListGenerator(entityModel);
         foreach (var entity in entities)
         {
             var entityType = entity.GetType() as Type;
@@ -36,25 +36,11 @@ public class EntitiesInsertStatementGenerator : IEntitiesStatementGenerator
             {
                 throw new ArgumentException("All entities in seed must be of the same type");
             }
-            script.Append("(");
-            foreach (var property in properties)
-            {
-                var value = entity.GetType().GetProperty(property.Name)?.GetValue(entity);
-                script.Append($"{FormatValue(value)}, ");
-            }
-            script.Remove(script.Length - 2, 2);
-            script.Append("),");
+            string valuesList = valuesListGenerator.Generate(entity);
+            script.Append(valuesList);
+            script.Append(", ");
         }
-        script.Remove(script.Length - 1, 1);
+        script.Remove(script.Length - 2, 2);
         return script.ToString();
     }
-
-    private string FormatValue(object value) =>
-        value switch
-        {
-            null => "NULL",
-            string or DateTime => $"'{value}'",
-            bool b => b ? "1" : "0",
-            _ => value.ToString()!
-        };
 }

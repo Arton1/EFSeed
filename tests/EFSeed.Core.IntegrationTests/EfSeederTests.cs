@@ -1,4 +1,5 @@
-﻿using EFSeed.Core.Tests.Common;
+﻿using EFSeed.Core.StatementGenerators;
+using EFSeed.Core.Tests.Common;
 using EFSeed.Core.Tests.Utils;
 
 namespace EFSeed.Core.Tests;
@@ -17,7 +18,7 @@ public class EfSeederTests : IClassFixture<MssqlDatabase>
     [Fact]
     public void Should_Run_Database()
     {
-        var seeder = new EfSeeder();
+        var seeder = new EfSeeder(new EntitiesInsertStatementGeneratorFactory());
         var seed = new List<List<dynamic>>();
         using var context = _database.CreateDbContext();
         var script = seeder.CreateSeedScript(context, seed);

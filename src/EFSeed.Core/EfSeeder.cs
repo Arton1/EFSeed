@@ -10,9 +10,9 @@ public class EfSeeder
 {
     private readonly IEntitiesStatementGeneratorFactory _statementGeneratorFactory;
 
-    public EfSeeder(IEntitiesStatementGeneratorFactory? statementGeneratorFactory = null)
+    public EfSeeder(IEntitiesStatementGeneratorFactory statementGeneratorFactory )
     {
-        _statementGeneratorFactory = statementGeneratorFactory ?? new EntitiesInsertStatementGeneratorFactory();
+        _statementGeneratorFactory = statementGeneratorFactory;
     }
 
     public string CreateSeedScript(DbContext dbContext, Seed seed)
