@@ -44,7 +44,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
     {
         yield return [new List<List<dynamic>> { new() { } }, ""];
         yield return [new List<List<dynamic>> { new() { new Country() {Id = 1, Name = "Atlantis"} } },
-            "INSERT INTO [Country] (Id, Name) VALUES (1, 'Atlantis')"];
+            "INSERT INTO Country (Id, Name) VALUES (1, 'Atlantis')"];
     }
 
 
