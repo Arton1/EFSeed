@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.DependencyModel;
 
-namespace EFSeed.Cli;
+namespace EFSeed.Cli.Generate;
 
 public class DbContextLoader
 {
-    public DbContext LoadDbContext(Options options, string[] args)
+    public DbContext LoadDbContext(GenerateOptions options, string[] args)
     {
         var projectDirectory = options.Project ?? Directory.GetCurrentDirectory();
         Directory.SetCurrentDirectory(projectDirectory);

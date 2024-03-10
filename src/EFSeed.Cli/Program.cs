@@ -1,15 +1,27 @@
 ﻿using CommandLine;
 using EFSeed.Cli;
+using EFSeed.Cli.Generate;
+using Microsoft.Extensions.Hosting;
 
-var result = Parser.Default.ParseArguments<Options>(args);
 
-if (result.Tag != ParserResultType.Parsed)
+var builder = Host.CreateDefaultBuilder(args);
+
+var options = Parser.Default.Parse(args);
+if (options == null)
 {
     return 1;
 }
+var command = options switch
+{
+    GenerateOptions generateOptions => new GenerateCommand(generateOptions),
+    _ => throw new NotSupportedException()
+};
 
-var options = result.Value;
+builder.ConfigureServices(command.ConfigureServices);
 
-var dbContext = new DbContextLoader().LoadDbContext(options, args);
+using var host = builder.Build();
+host.Start();
 
-return 0;
+return command.Run(host.Services);
+
+
