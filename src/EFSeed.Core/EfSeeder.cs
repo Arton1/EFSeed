@@ -46,11 +46,6 @@ public class EfSeeder
                 script.Append("\n\n");
             }
         }
-
-        if (script.Length != 0)
-        {
-            script.Remove(script.Length - 2, 2);
-        }
         return script.ToString();
     }
 }

@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\EFSeed.Core.Tests.Common\EFSeed.Core.Tests.Common.csproj" />
+      <ProjectReference Include="..\EFSeed.Tests.Common\EFSeed.Tests.Common.csproj" />
     </ItemGroup>
 
 </Project>

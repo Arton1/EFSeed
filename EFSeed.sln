@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSeed.Core.IntegrationTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSeed.Core.UnitTests", "tests\EFSeed.Core.UnitTests\EFSeed.Core.UnitTests.csproj", "{308F8E03-8640-41B0-87A4-90AE96672598}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSeed.Core.Tests.Common", "tests\EFSeed.Core.Tests.Common\EFSeed.Core.Tests.Common.csproj", "{0C133B82-9E00-4D75-B054-82795421E02F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFSeed.Tests.Common", "tests\EFSeed.Tests.Common\EFSeed.Tests.Common.csproj", "{0C133B82-9E00-4D75-B054-82795421E02F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

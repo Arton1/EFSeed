@@ -25,18 +25,24 @@ public class EntitiesMergeStatementGenerator : IEntitiesStatementGenerator
         var tableRef = schema == null ? tableName : $"{schema}.{tableName}";
         var columns = entityModel.GetProperties().Select(p => p.GetColumnName()).ToList();
         var script = new StringBuilder();
+        script.Append($"SET IDENTITY_INSERT {tableRef} ON;\n\n");
         script.Append($"MERGE INTO {tableRef} AS TARGET\nUSING (VALUES\n");
         var valuesListGenerator = new SqlValuesListGenerator(entityModel);
         foreach (var entity in entities)
         {
             var valuesList = valuesListGenerator.Generate(entity);
-            script.Append($"{valuesList}\n");
+            script.Append($"{valuesList},\n");
         }
-        script.Append(") AS SOURCE (");
+        script.Remove(script.Length - 2, 2);
+        script.Append("\n) AS SOURCE (");
         script.Append(string.Join(", ", columns));
         script.Append(")\nON Target.Id = Source.Id\nWHEN MATCHED THEN\nUPDATE SET ");
         foreach (var property in entityModel.GetProperties())
         {
+            if (property.IsPrimaryKey())
+            {
+                continue;
+            }
             var columnName = property.GetColumnName();
             script.Append($"Target.{columnName} = Source.{columnName}, ");
         }
@@ -46,6 +52,7 @@ public class EntitiesMergeStatementGenerator : IEntitiesStatementGenerator
         script.Append(")\nVALUES (");
         script.Append(string.Join(", ", columns.Select(c => $"Source.{c}")));
         script.Append(");");
+        script.Append($"\n\nSET IDENTITY_INSERT {tableRef} OFF;");
         return script.ToString();
     }
 

@@ -25,6 +25,7 @@ public class EntitiesInsertStatementGenerator : IEntitiesStatementGenerator
         var tableRef = schema == null ? tableName : $"{schema}.{tableName}";
         var columns = entityModel.GetProperties().Select(p => p.GetColumnName());
         var script = new StringBuilder();
+        script.Append($"SET IDENTITY_INSERT {tableRef} ON;\n\n");
         script.Append($"INSERT INTO {tableRef} (");
         script.Append(string.Join(", ", columns));
         script.Append(")\nVALUES\n");
@@ -41,6 +42,7 @@ public class EntitiesInsertStatementGenerator : IEntitiesStatementGenerator
             script.Append(",\n");
         }
         script.Remove(script.Length - 2, 2);
+        script.Append($"\n\nSET IDENTITY_INSERT {tableRef} OFF;");
         return script.ToString();
     }
 }
