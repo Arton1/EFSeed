@@ -25,26 +25,25 @@ public class EntitiesMergeStatementGenerator : IEntitiesStatementGenerator
         var tableRef = schema == null ? tableName : $"{schema}.{tableName}";
         var columns = entityModel.GetProperties().Select(p => p.GetColumnName()).ToList();
         var script = new StringBuilder();
-        script.Append($"MERGE INTO {tableRef} AS TARGET USING (VALUES");
+        script.Append($"MERGE INTO {tableRef} AS TARGET\nUSING (VALUES\n");
         var valuesListGenerator = new SqlValuesListGenerator(entityModel);
         foreach (var entity in entities)
         {
             var valuesList = valuesListGenerator.Generate(entity);
-            script.Append($"{valuesList}, ");
+            script.Append($"{valuesList}\n");
         }
-        script.Remove(script.Length - 2, 2);
         script.Append(") AS SOURCE (");
         script.Append(string.Join(", ", columns));
-        script.Append(") ON Target.Id = Source.Id WHEN MATCHED THEN UPDATE SET ");
+        script.Append(")\nON Target.Id = Source.Id\nWHEN MATCHED THEN\nUPDATE SET ");
         foreach (var property in entityModel.GetProperties())
         {
             var columnName = property.GetColumnName();
             script.Append($"Target.{columnName} = Source.{columnName}, ");
         }
         script.Remove(script.Length - 2, 2);
-        script.Append(" WHEN NOT MATCHED THEN INSERT (");
+        script.Append("\nWHEN NOT MATCHED THEN\nINSERT (");
         script.Append(string.Join(", ", columns));
-        script.Append(") VALUES (");
+        script.Append(")\nVALUES (");
         script.Append(string.Join(", ", columns.Select(c => $"Source.{c}")));
         script.Append(");");
         return script.ToString();

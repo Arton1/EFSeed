@@ -69,18 +69,20 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
            "VALUES\n" +
            "(1, 'Atlantis'),\n" +
            "(2, 'Lythania')\n" +
+           "\n" +
            "INSERT INTO Country (Id, Name)\n" +
            "VALUES\n" +
            "(3, 'Zoytaria')"];
         yield return [new List<List<dynamic>> {
-                new() { new Country() { Id = 1, Name = "Atlantis" } },
-                new() { new Animal() { Id = 1, Name = "Beabaul", Age = 3, Species = "Dog"} }
-            }, "INSERT INTO Country (Id, Name)\n" +
-               "VALUES\n" +
-               "(1, 'Atlantis')\n" +
-               "INSERT INTO Animal (Id, Age, Name, Species)\n" +
-               "VALUES\n" +
-               "(1, 3, 'Beabaul', 'Dog')"];
+            new() { new Country() { Id = 1, Name = "Atlantis" } },
+            new() { new Animal() { Id = 1, Name = "Beabaul", Age = 3, Species = "Dog"} }
+        }, "INSERT INTO Country (Id, Name)\n" +
+            "VALUES\n" +
+            "(1, 'Atlantis')\n" +
+            "\n" +
+            "INSERT INTO Animal (Id, Age, Name, Species)\n" +
+            "VALUES\n" +
+            "(1, 3, 'Beabaul', 'Dog')"];
     }
 
     [Theory]
@@ -99,7 +101,84 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
         yield return
         [
             new List<List<dynamic>> { new() { new Country() { Id = 1, Name = "Atlantis" } } },
-            "MERGE INTO Country AS TARGET USING (VALUES(1, 'Atlantis')) AS SOURCE (Id, Name) ON Target.Id = Source.Id WHEN MATCHED THEN UPDATE SET Target.Id = Source.Id, Target.Name = Source.Name WHEN NOT MATCHED THEN INSERT (Id, Name) VALUES (Source.Id, Source.Name);",
+            "MERGE INTO Country AS TARGET\n" +
+            "USING (VALUES\n" +
+            "(1, 'Atlantis')\n" +
+            ") AS SOURCE (Id, Name)\n" +
+            "ON Target.Id = Source.Id\n" +
+            "WHEN MATCHED THEN\n" +
+            "UPDATE SET Target.Id = Source.Id, Target.Name = Source.Name\n" +
+            "WHEN NOT MATCHED THEN\n" +
+            "INSERT (Id, Name)\n" +
+            "VALUES (Source.Id, Source.Name);",
+        ];
+        yield return [new List<List<dynamic>> {
+            new() { new Country() { Id = 1, Name = "Atlantis" }, new Country() { Id = 2, Name = "Lythania" } } },
+            "MERGE INTO Country AS TARGET\n" +
+            "USING (VALUES\n" +
+            "(1, 'Atlantis')\n" +
+            "(2, 'Lythania')\n" +
+            ") AS SOURCE (Id, Name)\n" +
+            "ON Target.Id = Source.Id\n" +
+            "WHEN MATCHED THEN\n" +
+            "UPDATE SET Target.Id = Source.Id, Target.Name = Source.Name\n" +
+            "WHEN NOT MATCHED THEN\n" +
+            "INSERT (Id, Name)\n" +
+            "VALUES (Source.Id, Source.Name);",
+        ];
+        yield return [new List<List<dynamic>> {
+            new()
+            {
+                new Country() { Id = 1, Name = "Atlantis" }, new Country() { Id = 2, Name = "Lythania" }
+            },
+            new() { new Country() { Id = 3, Name = "Zoytaria" } } },
+            "MERGE INTO Country AS TARGET\n" +
+            "USING (VALUES\n" +
+            "(1, 'Atlantis')\n" +
+            "(2, 'Lythania')\n" +
+            ") AS SOURCE (Id, Name)\n" +
+            "ON Target.Id = Source.Id\n" +
+            "WHEN MATCHED THEN\n" +
+            "UPDATE SET Target.Id = Source.Id, Target.Name = Source.Name\n" +
+            "WHEN NOT MATCHED THEN\n" +
+            "INSERT (Id, Name)\n" +
+            "VALUES (Source.Id, Source.Name);\n" +
+            "\n" +
+            "MERGE INTO Country AS TARGET\n" +
+            "USING (VALUES\n" +
+            "(3, 'Zoytaria')\n" +
+            ") AS SOURCE (Id, Name)\n" +
+            "ON Target.Id = Source.Id\n" +
+            "WHEN MATCHED THEN\n" +
+            "UPDATE SET Target.Id = Source.Id, Target.Name = Source.Name\n" +
+            "WHEN NOT MATCHED THEN\n" +
+            "INSERT (Id, Name)\n" +
+            "VALUES (Source.Id, Source.Name);",
+        ];
+        yield return [new List<List<dynamic>> {
+            new() { new Country() { Id = 1, Name = "Atlantis" } },
+            new() { new Animal() { Id = 1, Name = "Beabaul", Age = 3, Species = "Dog"} } },
+            "MERGE INTO Country AS TARGET\n" +
+            "USING (VALUES\n" +
+            "(1, 'Atlantis')\n" +
+            ") AS SOURCE (Id, Name)\n" +
+            "ON Target.Id = Source.Id\n" +
+            "WHEN MATCHED THEN\n" +
+            "UPDATE SET Target.Id = Source.Id, Target.Name = Source.Name\n" +
+            "WHEN NOT MATCHED THEN\n" +
+            "INSERT (Id, Name)\n" +
+            "VALUES (Source.Id, Source.Name);\n" +
+            "\n" +
+            "MERGE INTO Animal AS TARGET\n" +
+            "USING (VALUES\n" +
+            "(1, 3, 'Beabaul', 'Dog')\n" +
+            ") AS SOURCE (Id, Age, Name, Species)\n" +
+            "ON Target.Id = Source.Id\n" +
+            "WHEN MATCHED THEN\n" +
+            "UPDATE SET Target.Id = Source.Id, Target.Age = Source.Age, Target.Name = Source.Name, Target.Species = Source.Species\n" +
+            "WHEN NOT MATCHED THEN\n" +
+            "INSERT (Id, Age, Name, Species)\n" +
+            "VALUES (Source.Id, Source.Age, Source.Name, Source.Species);",
         ];
     }
 

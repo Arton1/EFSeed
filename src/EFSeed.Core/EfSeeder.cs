@@ -43,13 +43,13 @@ public class EfSeeder
             if (entitiesScript.Length > 0)
             {
                 script.Append(entitiesScript);
-                script.Append("\n");
+                script.Append("\n\n");
             }
         }
 
         if (script.Length != 0)
         {
-            script.Remove(script.Length - 1, 1);
+            script.Remove(script.Length - 2, 2);
         }
         return script.ToString();
     }
