@@ -26,10 +26,6 @@ public class EfSeeder
             throw new ArgumentNullException(nameof(seed));
         }
         var entitiesLists = seed.ToList();
-        if(entitiesLists.Count == 0)
-        {
-            return "";
-        }
         var script = new StringBuilder();
         var entitiesScriptGenerator = _statementGeneratorFactory.Create(dbContext);
         foreach (var enumerable in entitiesLists)
@@ -43,9 +39,14 @@ public class EfSeeder
             if (entitiesScript.Length > 0)
             {
                 script.Append(entitiesScript);
-                script.Append("\n\n");
+                script.Append("\n");
             }
         }
+        if(script.Length == 0)
+        {
+            return "";
+        }
+        script.Remove(script.Length - 1, 1);
         return script.ToString();
     }
 }
