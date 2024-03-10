@@ -42,13 +42,14 @@ public class EfSeeder
             var entitiesScript = entitiesScriptGenerator.Generate(entities);
             if (entitiesScript.Length > 0)
             {
-                script.AppendLine(entitiesScript);
+                script.Append(entitiesScript);
+                script.Append("\n");
             }
         }
 
         if (script.Length != 0)
         {
-            script.Remove(script.Length - 2, 2);
+            script.Remove(script.Length - 1, 1);
         }
         return script.ToString();
     }

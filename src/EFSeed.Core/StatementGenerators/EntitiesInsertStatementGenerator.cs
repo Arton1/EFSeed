@@ -27,7 +27,7 @@ public class EntitiesInsertStatementGenerator : IEntitiesStatementGenerator
         var script = new StringBuilder();
         script.Append($"INSERT INTO {tableRef} (");
         script.Append(string.Join(", ", columns));
-        script.Append(") VALUES ");
+        script.Append(")\nVALUES\n");
         var valuesListGenerator = new SqlValuesListGenerator(entityModel);
         foreach (var entity in entities)
         {
@@ -38,7 +38,7 @@ public class EntitiesInsertStatementGenerator : IEntitiesStatementGenerator
             }
             string valuesList = valuesListGenerator.Generate(entity);
             script.Append(valuesList);
-            script.Append(", ");
+            script.Append(",\n");
         }
         script.Remove(script.Length - 2, 2);
         return script.ToString();

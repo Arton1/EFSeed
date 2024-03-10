@@ -7,6 +7,7 @@ public class EFSeedTestDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<Person> People { get; set; }
     public DbSet<City> Cities { get; set; }
     public DbSet<Country> Countries { get; set; }
+    public DbSet<Animal> Animals { get; set; }
 }
 
 public class Person
@@ -32,4 +33,12 @@ public class Country
     public int Id { get; set; }
     public string Name { get; set; }
     public List<City> Cities { get; set; }
+}
+
+public class Animal
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public string Species { get; set; }
 }
