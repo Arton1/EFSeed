@@ -2,15 +2,28 @@
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
+using System.Text.RegularExpressions;
+using EFSeed.Cli.Generate;
 using Microsoft.Extensions.DependencyModel;
 
-namespace EFSeed.Cli.Generate;
+namespace EFSeed.Cli.Loading;
 
-public class DbContextLoader
+public class ProjectTypesExtractor
 {
-    public DbContext LoadDbContext(GenerateOptions options, string[] args)
+    private readonly Dictionary<GenerateOptions, List<TypeInfo>> _typeCache = new();
+
+    public List<TypeInfo> GetProjectTypes(GenerateOptions options)
+    {
+        if (_typeCache.TryGetValue(options, out var types))
+        {
+            return types;
+        }
+        var projectTypes = GetProjectTypesImpl(options);
+        _typeCache[options] = projectTypes;
+        return projectTypes;
+    }
+
+    private List<TypeInfo> GetProjectTypesImpl(GenerateOptions options)
     {
         var projectDirectory = options.Project ?? Directory.GetCurrentDirectory();
         Directory.SetCurrentDirectory(projectDirectory);
@@ -19,23 +32,9 @@ public class DbContextLoader
         {
             throw new InvalidOperationException("No project was found.");
         }
-
-
         if (!options.NoBuild)
         {
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "dotnet",
-                    Arguments = $"build \"{csprojFile}\"",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                }
-            };
-            process.Start();
-            process.WaitForExit();
+            BuildAssembly(csprojFile);
         }
         var assemblyFileName = Path.GetFileNameWithoutExtension(csprojFile) + ".dll";
         var assemblyFile = Directory
@@ -47,22 +46,40 @@ public class DbContextLoader
         }
 
         var assembly = new CustomAssemblyLoadContextOld(assemblyFile).LoadFromAssemblyPath(assemblyFile);
-        var definedTypes = assembly.GetLoadableDefinedTypes().ToList();
-        var factoryType = definedTypes.FirstOrDefault(t => typeof(IDesignTimeDbContextFactory<DbContext>).IsAssignableFrom(t));
-        if (factoryType == null)
+        return GetLoadableDefinedTypes(assembly).ToList();
+    }
+
+    private IEnumerable<TypeInfo> GetLoadableDefinedTypes(Assembly assembly)
+    {
+        try
         {
-            throw new InvalidOperationException("No design time db context factory was found.");
+            return assembly.DefinedTypes;
         }
-        var toolDatabaseConfigInstance = Activator.CreateInstance(factoryType) as IDesignTimeDbContextFactory<DbContext>;
-        var dbContext = toolDatabaseConfigInstance?.CreateDbContext(args);
-        if (dbContext == null)
+        catch (ReflectionTypeLoadException ex)
         {
-            throw new InvalidOperationException("Db context could not be created.");
+            return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo!);
         }
-        return dbContext;
+    }
+
+    private void BuildAssembly(string csprojFile)
+    {
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = $"build \"{csprojFile}\"",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+            }
+        };
+        process.Start();
+        process.WaitForExit();
     }
 }
 
+// This class is used to load the main assembly only, and not the dependencies
 public class CustomAssemblyLoadContextOld : AssemblyLoadContext
 {
     private readonly string mainAssemblyToLoadPath;
@@ -84,10 +101,12 @@ public class CustomAssemblyLoadContextOld : AssemblyLoadContext
     }
 }
 
+
 public class CustomAssemblyLoadContext : AssemblyLoadContext
 {
     private readonly string mainAssemblyToLoadPath;
     private readonly DependencyContext dependencyContext;
+    private readonly Dictionary<string, Assembly> loadedAssemblies = new();
 
     public CustomAssemblyLoadContext(string mainAssemblyToLoadPath)
     {
@@ -103,7 +122,34 @@ public class CustomAssemblyLoadContext : AssemblyLoadContext
         }
     }
 
-    protected override Assembly Load(AssemblyName assemblyName)
+    protected override Assembly? Load(AssemblyName assemblyName)
+    {
+        if (loadedAssemblies.TryGetValue(assemblyName.FullName, out var load))
+        {
+            return load;
+        }
+        var assembly = LoadAssembly(assemblyName);
+        loadedAssemblies[assemblyName.FullName] = assembly;
+        if (assembly != null)
+        {
+            // Load dependencies of the loaded assembly
+            foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
+            {
+                if (loadedAssemblies.ContainsKey(referencedAssembly.FullName))
+                {
+                    continue;
+                }
+                var loadedDependency = Load(referencedAssembly);
+                if (loadedDependency != null)
+                {
+                    loadedAssemblies[referencedAssembly.FullName] = loadedDependency;
+                }
+            }
+        }
+        return assembly;
+    }
+
+    private Assembly LoadAssembly(AssemblyName assemblyName)
     {
         var library = dependencyContext.RuntimeLibraries.FirstOrDefault(lib => lib.Name == assemblyName.Name);
         if (library != null)
@@ -111,7 +157,7 @@ public class CustomAssemblyLoadContext : AssemblyLoadContext
             foreach (var assemblyPath in library.RuntimeAssemblyGroups.SelectMany(g => g.AssetPaths))
             {
                 var path = Path.Combine(Path.GetDirectoryName(mainAssemblyToLoadPath), assemblyPath);
-                if (File.Exists(path))
+                if (File.Exists(path) && !path.Contains("\\ref\\"))
                 {
                     return LoadFromAssemblyPath(path);
                 }
@@ -120,12 +166,16 @@ public class CustomAssemblyLoadContext : AssemblyLoadContext
 
         // If the assembly was not found in the .deps.json file, try to load it from the NuGet package directory
         var nugetPackageDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
-        var assemblyFilePath = Directory.GetFiles(nugetPackageDirectory, assemblyName.Name + ".dll", SearchOption.AllDirectories).FirstOrDefault();
-        if (assemblyFilePath != null)
-        {
-            return LoadFromAssemblyPath(assemblyFilePath);
-        }
+        var assemblyFilePaths = Directory.GetFiles(nugetPackageDirectory, assemblyName.Name + ".dll", SearchOption.AllDirectories).Where(path => !path.Contains("\\ref\\"));
 
+        foreach (var assemblyFilePath in assemblyFilePaths)
+        {
+            var loadedAssemblyName = AssemblyName.GetAssemblyName(assemblyFilePath);
+            if (loadedAssemblyName.Version == assemblyName.Version)
+            {
+                return LoadFromAssemblyPath(assemblyFilePath);
+            }
+        }
         return Default.LoadFromAssemblyName(assemblyName);
     }
 }

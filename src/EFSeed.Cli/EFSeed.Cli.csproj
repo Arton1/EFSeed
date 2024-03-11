@@ -18,5 +18,9 @@
         <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\EFSeed.Core\EFSeed.Core.csproj" />
+    </ItemGroup>
     
 </Project>

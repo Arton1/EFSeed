@@ -2,5 +2,5 @@
 
 public interface IDatabaseSeed
 {
-    public IEnumerable<IEnumerable<object>> Seed();
+    IEnumerable<IEnumerable<object>> Seed();
 }

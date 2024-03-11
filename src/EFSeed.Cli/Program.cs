@@ -1,6 +1,8 @@
 ﻿using CommandLine;
 using EFSeed.Cli;
 using EFSeed.Cli.Generate;
+using EFSeed.Cli.Loading;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 
@@ -17,11 +19,15 @@ var command = options switch
     _ => throw new NotSupportedException()
 };
 
-builder.ConfigureServices(command.ConfigureServices);
+builder.ConfigureServices(services =>
+{
+    services.AddSingleton<ProjectTypesExtractor>();
+    command.ConfigureServices(services);
+});
 
 using var host = builder.Build();
 host.Start();
 
-return command.Run(host.Services);
+return await command.Run(host.Services);
 
 
