@@ -27,8 +27,8 @@ public class GenerateCommand(GenerateOptions options) : ICommand
         var context = services.GetRequiredService<DbContext>();
         var seedLoader = services.GetRequiredService<DatabaseSeedLoader>();
         var seed = seedLoader.Load(options);
-        // var script = seeder.CreateSeedScript(context, seed.Seed());
-        await Console.Out.WriteAsync("Seed script created.");
+        var script = seeder.CreateSeedScript(context, seed);
+        await Console.Out.WriteAsync(script);
         return 0;
     }
 }

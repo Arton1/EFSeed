@@ -4,9 +4,14 @@ using EFSeed.Cli.Generate;
 using EFSeed.Cli.Loading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-
-var builder = Host.CreateDefaultBuilder(args);
+var builder = Host.CreateDefaultBuilder(args)
+    .ConfigureLogging(logging =>
+    {
+        logging.ClearProviders();
+        logging.SetMinimumLevel(LogLevel.None);
+    });
 
 var options = Parser.Default.Parse(args);
 if (options == null)
@@ -21,6 +26,10 @@ var command = options switch
 
 builder.ConfigureServices(services =>
 {
+    services.AddLogging(builder =>
+    {
+
+    });
     services.AddSingleton<ProjectTypesExtractor>();
     command.ConfigureServices(services);
 });
