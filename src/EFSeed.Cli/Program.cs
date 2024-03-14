@@ -26,10 +26,6 @@ var command = options switch
 
 builder.ConfigureServices(services =>
 {
-    services.AddLogging(builder =>
-    {
-
-    });
     services.AddSingleton<ProjectTypesExtractor>();
     command.ConfigureServices(services);
 });

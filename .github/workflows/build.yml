@@ -1,0 +1,43 @@
+﻿name: build
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup DotNet
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x.x
+      - name: Restore Tools
+        run: echo "/root/.dotnet/tools" >> $GITHUB_PATH && dotnet tool install --global GitVersion.Tool
+      - name: Calculate version
+        run: dotnet-gitversion -output buildserver
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build -c Release --no-restore /p:Version=${{env.GitVersion_AssemblySemVer}}
+      - name: Unit Tests
+        run: dotnet test -c Release --no-build
+        working-directory: tests/EFSeed.Core.UnitTests
+      - name: Integration Tests
+        run: dotnet test -c Release --no-build
+        working-directory: tests/EFSeed.Core.IntegrationTests
+      - name: Pack Core
+        run: dotnet pack --output nupkgs --no-build --nologo --include-symbols -p:PackageVersion=${{env.GitVersion_NuGetVersion}} ./src/EFSeed.Core/EFSeed.Core.csproj
+      - name: Pack Cli
+        run: dotnet pack --output nupkgs --no-build --nologo --include-symbols -p:PackageVersion=${{env.GitVersion_NuGetVersion}} ./src/EFSeed.Cli/EFSeed.Cli.csproj
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./nupkgs
+          name: packages
+      - name: Publish to Nuget
+        run: dotnet nuget push --force-english-output --api-key ${{secrets.NUGET_KEY}} --source https://api.nuget.org/v3/index.json
+        working-directory: ./nupkgs
