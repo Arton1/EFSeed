@@ -5,12 +5,23 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
+        <PackageId>EFSeed</PackageId>
+        <Title>EFSeed</Title>
+        <Authors>Artur Wyrozębski</Authors>
+        <PackageTags>ef-core; entity-framework; seed</PackageTags>
+        <Description>EFSeed is a library that allows you to seed your database with data using Entity Framework Core.</Description>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/Arton1/EFSeed.git</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Arton1/EFSeed</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.2" />
       <PackageReference Include="Respawn" Version="6.2.1" />
+      <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
     </ItemGroup>
 
 </Project>

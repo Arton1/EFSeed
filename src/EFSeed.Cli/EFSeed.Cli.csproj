@@ -5,6 +5,19 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>efseed</ToolCommandName>
+
+        <PackageId>EFSeed.Cli</PackageId>
+        <Title>EFSeed.Cli</Title>
+        <Authors>Artur Wyrozębski</Authors>
+        <PackageTags>ef-core; entity-framework; seed</PackageTags>
+        <Description>EFSeed.Cli is a command line tool for seeding data into a database using Entity Framework Core.</Description>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/Arton1/EFSeed.git</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/Arton1/EFSeed</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,5 +35,5 @@
     <ItemGroup>
       <ProjectReference Include="..\EFSeed.Core\EFSeed.Core.csproj" />
     </ItemGroup>
-    
+
 </Project>
