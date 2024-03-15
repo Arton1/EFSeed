@@ -33,9 +33,9 @@ jobs:
 #        run: dotnet test -c Release --no-build
 #        working-directory: tests/EFSeed.Core.IntegrationTests
       - name: Pack Core
-        run: dotnet pack --output nupkgs --no-build --nologo --include-symbols -p:PackageVersion=${{env.GitVersion_NuGetVersion}} ./src/EFSeed.Core/EFSeed.Core.csproj
+        run: dotnet pack --output nupkgs --no-build --nologo -p:PackageVersion=${{env.GitVersion_NuGetVersion}} ./src/EFSeed.Core/EFSeed.Core.csproj
       - name: Pack Cli
-        run: dotnet pack --output nupkgs --no-build --nologo --include-symbols -p:PackageVersion=${{env.GitVersion_NuGetVersion}} ./src/EFSeed.Cli/EFSeed.Cli.csproj
+        run: dotnet pack --output nupkgs --no-build --nologo -p:PackageVersion=${{env.GitVersion_NuGetVersion}} ./src/EFSeed.Cli/EFSeed.Cli.csproj
       - name: Upload packages
         uses: actions/upload-artifact@v4
         with:
