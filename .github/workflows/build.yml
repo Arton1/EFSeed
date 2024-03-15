@@ -42,5 +42,5 @@ jobs:
           path: ./nupkgs
           name: packages
       - name: Publish to Nuget
-        run: dotnet nuget push --force-english-output --api-key ${{secrets.NUGET_KEY}} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push "*.nupkg" --force-english-output --api-key ${{secrets.NUGET_KEY}} --source https://api.nuget.org/v3/index.json
         working-directory: ./nupkgs
