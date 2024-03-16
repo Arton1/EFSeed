@@ -1,12 +1,15 @@
-﻿namespace EFSeed.Core.Tests.Common;
+﻿using Bogus;
+
+namespace EFSeed.Core.Tests.Common;
 
 public class CustomDatabaseSeed : IDatabaseSeed
 {
-    public IEnumerable<IEnumerable<object>> Seed()
+
+    public void Seed(SeedBuilder builder)
     {
-        return new List<IEnumerable<Country>>
-        {
-            new List<Country> { new() { Id = 1, Name = "USA" } },
-        };
+        var countriesFaker = new Faker<Country>()
+            .RuleFor(c => c.Name, f => f.Address.Country());
+        var countries = countriesFaker.Generate(5).ToList();
+        builder.Add(countries);
     }
 }

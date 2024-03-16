@@ -9,7 +9,7 @@ public class DbContextLoader(ProjectTypesExtractor typesExtractor)
     public DbContext Load(GenerateOptions options)
     {
         var definedTypes = typesExtractor.GetProjectTypes(options);
-        var factoryType = definedTypes.FirstOrDefault(t => t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition().FullName == typeof(IDesignTimeDbContextFactory<>).FullName));
+        var factoryType = definedTypes.FirstOrDefault(t => typeof(IDesignTimeDbContextFactory<DbContext>).IsAssignableFrom(t.AsType()));
         if (factoryType == null)
         {
             throw new InvalidOperationException("No design time db context factory was found.");
