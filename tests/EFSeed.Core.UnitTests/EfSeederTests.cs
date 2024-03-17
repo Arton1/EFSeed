@@ -45,20 +45,24 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
         yield return
         [
             new List<List<dynamic>> { new() { new Country() { Id = 1, Name = "Atlantis" } } },
+            "BEGIN TRANSACTION;\n\n" +
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "INSERT INTO Country (Id, Name)\n" +
             "VALUES\n" +
             "(1, 'Atlantis')\n\n" +
-            "SET IDENTITY_INSERT Country OFF;"
+            "SET IDENTITY_INSERT Country OFF;\n\n" +
+            "COMMIT;"
         ];
         yield return [new List<List<dynamic>> {
             new() { new Country() { Id = 1, Name = "Atlantis" }, new Country() { Id = 2, Name = "Lythania" } } },
+            "BEGIN TRANSACTION;\n\n" +
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "INSERT INTO Country (Id, Name)\n" +
             "VALUES\n" +
             "(1, 'Atlantis'),\n" +
             "(2, 'Lythania')\n\n" +
-            "SET IDENTITY_INSERT Country OFF;"
+            "SET IDENTITY_INSERT Country OFF;\n\n" +
+            "COMMIT;"
         ];
         yield return [new List<List<dynamic>> {
             new()
@@ -66,7 +70,8 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
                 new Country() { Id = 1, Name = "Atlantis" }, new Country() { Id = 2, Name = "Lythania" }
             },
             new() { new Country() { Id = 3, Name = "Zoytaria" } }
-        }, "SET IDENTITY_INSERT Country ON;\n\n" +
+        }, "BEGIN TRANSACTION;\n\n" +
+           "SET IDENTITY_INSERT Country ON;\n\n" +
            "INSERT INTO Country (Id, Name)\n" +
            "VALUES\n" +
            "(1, 'Atlantis'),\n" +
@@ -76,12 +81,14 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
            "INSERT INTO Country (Id, Name)\n" +
            "VALUES\n" +
            "(3, 'Zoytaria')\n\n" +
-           "SET IDENTITY_INSERT Country OFF;"
+           "SET IDENTITY_INSERT Country OFF;\n\n" +
+           "COMMIT;"
         ];
         yield return [new List<List<dynamic>> {
             new() { new Country() { Id = 1, Name = "Atlantis" } },
             new() { new Animal() { Id = 1, Name = "Beabaul", Age = 3, Species = "Dog"} }
-        }, "SET IDENTITY_INSERT Country ON;\n\n" +
+        }, "BEGIN TRANSACTION;\n\n" +
+            "SET IDENTITY_INSERT Country ON;\n\n" +
             "INSERT INTO Country (Id, Name)\n" +
             "VALUES\n" +
             "(1, 'Atlantis')\n\n" +
@@ -90,7 +97,8 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "INSERT INTO Animal (Id, Age, Name, Species)\n" +
             "VALUES\n" +
             "(1, 3, 'Beabaul', 'Dog')\n\n" +
-            "SET IDENTITY_INSERT Animal OFF;"
+            "SET IDENTITY_INSERT Animal OFF;\n\n" +
+            "COMMIT;"
         ];
     }
 
@@ -110,6 +118,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
         yield return
         [
             new List<List<dynamic>> { new() { new Country() { Id = 1, Name = "Atlantis" } } },
+            "BEGIN TRANSACTION;\n\n" +
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
             "USING (VALUES\n" +
@@ -121,10 +130,12 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "WHEN NOT MATCHED THEN\n" +
             "INSERT (Id, Name)\n" +
             "VALUES (Source.Id, Source.Name);\n\n" +
-            "SET IDENTITY_INSERT Country OFF;",
+            "SET IDENTITY_INSERT Country OFF;\n\n" +
+            "COMMIT;",
         ];
         yield return [new List<List<dynamic>> {
             new() { new Country() { Id = 1, Name = "Atlantis" }, new Country() { Id = 2, Name = "Lythania" } } },
+            "BEGIN TRANSACTION;\n\n" +
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
             "USING (VALUES\n" +
@@ -137,7 +148,8 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "WHEN NOT MATCHED THEN\n" +
             "INSERT (Id, Name)\n" +
             "VALUES (Source.Id, Source.Name);\n\n" +
-            "SET IDENTITY_INSERT Country OFF;",
+            "SET IDENTITY_INSERT Country OFF;\n\n" +
+            "COMMIT;",
         ];
         yield return [new List<List<dynamic>> {
             new()
@@ -145,6 +157,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
                 new Country() { Id = 1, Name = "Atlantis" }, new Country() { Id = 2, Name = "Lythania" }
             },
             new() { new Country() { Id = 3, Name = "Zoytaria" } } },
+            "BEGIN TRANSACTION;\n\n" +
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
             "USING (VALUES\n" +
@@ -169,11 +182,13 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "WHEN NOT MATCHED THEN\n" +
             "INSERT (Id, Name)\n" +
             "VALUES (Source.Id, Source.Name);\n\n" +
-            "SET IDENTITY_INSERT Country OFF;",
+            "SET IDENTITY_INSERT Country OFF;\n\n" +
+            "COMMIT;",
         ];
         yield return [new List<List<dynamic>> {
             new() { new Country() { Id = 1, Name = "Atlantis" } },
             new() { new Animal() { Id = 1, Name = "Beabaul", Age = 3, Species = "Dog"} } },
+            "BEGIN TRANSACTION;\n\n" +
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
             "USING (VALUES\n" +
@@ -197,7 +212,8 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "WHEN NOT MATCHED THEN\n" +
             "INSERT (Id, Age, Name, Species)\n" +
             "VALUES (Source.Id, Source.Age, Source.Name, Source.Species);\n\n" +
-            "SET IDENTITY_INSERT Animal OFF;",
+            "SET IDENTITY_INSERT Animal OFF;\n\n" +
+            "COMMIT;"
         ];
     }
 

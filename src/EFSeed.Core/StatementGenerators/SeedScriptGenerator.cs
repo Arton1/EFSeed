@@ -14,6 +14,8 @@ internal class SeedScriptGenerator
     public string Generate(IEnumerable<IEnumerable<object>> seed)
     {
         var script = new StringBuilder();
+        script.Append("BEGIN TRANSACTION;\n\n");
+        var hasData = false;
         var entitiesLists = seed.ToList();
         foreach (var enumerable in entitiesLists)
         {
@@ -27,13 +29,15 @@ internal class SeedScriptGenerator
             {
                 script.Append(entitiesScript);
                 script.Append("\n");
+                hasData = true;
             }
         }
-        if(script.Length == 0)
+        if(!hasData)
         {
             return "";
         }
-        script.Remove(script.Length - 1, 1);
+        script.Append("\n");
+        script.Append("COMMIT;");
         return script.ToString();
     }
 }
