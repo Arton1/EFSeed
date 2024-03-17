@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFSeed.Core.StatementGenerators;
@@ -10,7 +11,6 @@ public class SqlValuesListGenerator
     public SqlValuesListGenerator(IEntityType entityModel)
     {
         _properties = entityModel.GetProperties().ToList();
-
     }
 
     public string Generate(object entity)
@@ -27,12 +27,21 @@ public class SqlValuesListGenerator
         return script.ToString();
     }
 
+    // Have to generate SQL values instead of using parametrized queries
     private string FormatValue(object value) =>
         value switch
         {
             null => "NULL",
-            string or DateTime => $"'{value}'",
+            string text => $"'{text.Replace("'", "''")}'",
+            DateTime date => $"'{date:yyyy-MM-dd HH:mm:ss}'",
             bool b => b ? "1" : "0",
+            decimal d => d.ToString(CultureInfo.InvariantCulture),
+            double d => d.ToString(CultureInfo.InvariantCulture),
+            float d => d.ToString(CultureInfo.InvariantCulture),
+            int i => i.ToString(CultureInfo.InvariantCulture),
+            byte[] bArr => "0x" + BitConverter.ToString(bArr).Replace("-", ""),
+            Guid g => $"'{g}'",
+            TimeSpan ts => $"'{ts:c}'",
             _ => value.ToString()!
         };
 }
