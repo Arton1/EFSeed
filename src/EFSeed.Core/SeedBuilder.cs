@@ -5,6 +5,11 @@ public class SeedBuilder
 {
     private readonly List<List<object>> _data = new ();
 
+    internal SeedBuilder()
+    {
+
+    }
+
     public SeedBuilder Add<T>(IEnumerable<T> entities) where T : class
     {
         var list = entities.Cast<object>().ToList();
@@ -12,5 +17,6 @@ public class SeedBuilder
         return this;
     }
 
-    public SeedDefinition Build() => new(_data);
+    // Hidden, so it can't be called from IDatabaseSeed
+    internal SeedDefinition Build() => new(_data);
 }

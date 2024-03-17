@@ -30,9 +30,7 @@ public class GenerateCommand(GenerateOptions options) : ICommand
         var seeder = services.GetRequiredService<EfSeeder>();
         var context = services.GetRequiredService<DbContext>();
         var seed = services.GetRequiredService<IDatabaseSeed>();
-        var seedBuilder = new SeedBuilder();
-        seed.Seed(seedBuilder);
-        var seedDefinition = seedBuilder.Build();
+        var seedDefinition = seed.GenerateDefinition();
         var script = seeder.CreateSeedScript(context, seedDefinition.Seed);
         await Console.Out.WriteAsync(script);
         return 0;
