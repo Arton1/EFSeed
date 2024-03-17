@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.Loader;
 
-namespace EFSeed.Cli.Loading;
+namespace EFSeed.Cli.Load;
 
 // Explanation: https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support
 // Additional source: https://github.com/natemcmaster/DotNetCorePlugins/blob/v0.1.0/src/Plugins/Loader/ManagedLoadContext.cs

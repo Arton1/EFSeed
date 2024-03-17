@@ -1,5 +1,6 @@
 ﻿namespace EFSeed.Core;
 
+// It's actually SeedDefinitionBuilder, but named like this for simplicity
 public class SeedBuilder
 {
     private readonly List<List<object>> _data = new ();
@@ -11,8 +12,5 @@ public class SeedBuilder
         return this;
     }
 
-    public List<List<object>> Build()
-    {
-        return _data;
-    }
+    public SeedDefinition Build() => new(_data);
 }

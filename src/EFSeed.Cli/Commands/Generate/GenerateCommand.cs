@@ -1,10 +1,11 @@
-﻿using EFSeed.Cli.Loading;
+﻿using EFSeed.Cli.Generate;
+using EFSeed.Cli.Load;
 using EFSeed.Core;
 using EFSeed.Core.StatementGenerators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EFSeed.Cli.Generate;
+namespace EFSeed.Cli.Commands.Generate;
 
 public class GenerateCommand(GenerateOptions options) : ICommand
 {
@@ -13,21 +14,26 @@ public class GenerateCommand(GenerateOptions options) : ICommand
     {
         services.AddSingleton<IEntitiesStatementGeneratorFactory, EntitiesInsertStatementGeneratorFactory>();
         services.AddSingleton<EfSeeder>();
-        var typesExtractor = new ProjectTypesExtractor();
-        services.AddSingleton(typesExtractor);
-        var dbContextLoader = new DbContextLoader(typesExtractor);
-        var dbContext = dbContextLoader.Load(options);
+        var dependenciesLoader = ProjectDependenciesLoader.Create(new ProjectAssemblyLoaderOptions()
+        {
+            Path = options.Project,
+            NoBuild = options.NoBuild,
+        });
+        var dbContext = dependenciesLoader.CreateDbContext();
         services.AddSingleton(dbContext);
-        services.AddSingleton<DatabaseSeedLoader>();
+        var seed = dependenciesLoader.CreateDatabaseSeed();
+        services.AddSingleton(seed);
     }
 
     public async Task<int> Run(IServiceProvider services)
     {
         var seeder = services.GetRequiredService<EfSeeder>();
         var context = services.GetRequiredService<DbContext>();
-        var seedLoader = services.GetRequiredService<DatabaseSeedLoader>();
-        var seed = seedLoader.Load(options);
-        var script = seeder.CreateSeedScript(context, seed);
+        var seed = services.GetRequiredService<IDatabaseSeed>();
+        var seedBuilder = new SeedBuilder();
+        seed.Seed(seedBuilder);
+        var seedDefinition = seedBuilder.Build();
+        var script = seeder.CreateSeedScript(context, seedDefinition.Seed);
         await Console.Out.WriteAsync(script);
         return 0;
     }

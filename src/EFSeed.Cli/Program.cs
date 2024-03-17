@@ -1,7 +1,8 @@
 ﻿using CommandLine;
 using EFSeed.Cli;
+using EFSeed.Cli.Commands.Generate;
 using EFSeed.Cli.Generate;
-using EFSeed.Cli.Loading;
+using EFSeed.Cli.Load;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -26,7 +27,6 @@ var command = options switch
 
 builder.ConfigureServices(services =>
 {
-    services.AddSingleton<ProjectTypesExtractor>();
     command.ConfigureServices(services);
 });
 
