@@ -1,4 +1,5 @@
-﻿using EFSeed.Core.StatementGenerators;
+﻿using EFSeed.Core.Clearing;
+using EFSeed.Core.StatementGenerators;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFSeed.Core;
@@ -54,7 +55,8 @@ public class EfSeederBuilder
         var statementGeneratorFactory = new EntityStatementGeneratorFactory(_dbContext);
         var statementGenerator = statementGeneratorFactory.Create(_mode);
         var seedScriptGenerator = new SeedScriptGenerator(statementGenerator);
-        var seeder = new EfSeeder(seedScriptGenerator, _dbContext);
+        var clearScriptGenerator = new ClearScriptGenerator();
+        var seeder = new EfSeeder(seedScriptGenerator, clearScriptGenerator);
         _isBuilt = true;
         return seeder;
     }

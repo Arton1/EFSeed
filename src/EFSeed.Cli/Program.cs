@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 using EFSeed.Cli;
+using EFSeed.Cli.Commands.Clear;
 using EFSeed.Cli.Commands.Generate;
-using EFSeed.Cli.Generate;
 using EFSeed.Cli.Load;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,14 +21,15 @@ var options = new Parser(with =>
     with.HelpWriter = Console.Out;
     with.CaseInsensitiveEnumValues = true;
     with.CaseSensitive = false;
-}).Parse(args);
+}).Parse(args) as Options;
 if (options == null)
 {
     return 1;
 }
-var command = options switch
+ICommand command = options switch
 {
     GenerateOptions generateOptions => new GenerateCommand(generateOptions),
+    ClearOptions clearOptions => new ClearCommand(clearOptions),
     _ => throw new NotSupportedException()
 };
 

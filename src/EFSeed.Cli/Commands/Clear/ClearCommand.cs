@@ -1,40 +1,36 @@
 ﻿using EFSeed.Cli.Load;
 using EFSeed.Core;
-using EFSeed.Core.StatementGenerators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EFSeed.Cli.Commands.Generate;
+namespace EFSeed.Cli.Commands.Clear;
 
-public class GenerateCommand(GenerateOptions options) : ICommand
+public class ClearCommand(ClearOptions options) : ICommand
 {
-
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddSingleton<EfSeederBuilder>();
         var dependenciesLoader = ProjectDependenciesLoader.Create(new ProjectAssemblyLoaderOptions
         {
             Path = options.Project,
-            NoBuild = options.NoBuild,
+            NoBuild = true
         });
         var dbContext = dependenciesLoader.CreateDbContext();
         services.AddSingleton(dbContext);
-        var seed = dependenciesLoader.CreateDatabaseSeed();
-        services.AddSingleton(seed);
+        // var seed = dependenciesLoader.CreateDatabaseSeed();
+        // services.AddSingleton(seed);
     }
 
     public async Task<int> Run(IServiceProvider services)
     {
         var seederBuilder = services.GetRequiredService<EfSeederBuilder>();
         var context = services.GetRequiredService<DbContext>();
-        var seed = services.GetRequiredService<IDatabaseSeed>();
-        var seedDefinition = seed.GenerateDefinition();
+        // var seed = services.GetRequiredService<IDatabaseSeed>();
+        // var seedDefinition = seed.GenerateDefinition();
         var seeder = seederBuilder
             .WithDbContext(context)
-            .WithMode(options.Mode ?? GenerationMode.Insert)
             .Build();
-        var script = seeder.CreateSeedScript(seedDefinition.Seed);
-        await Console.Out.WriteAsync(script);
+        await seeder.ClearDatabase();
         return 0;
     }
 }

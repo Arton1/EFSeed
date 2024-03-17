@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using CommandLine;
-using EFSeed.Cli.Generate;
 
 namespace EFSeed.Cli;
 
