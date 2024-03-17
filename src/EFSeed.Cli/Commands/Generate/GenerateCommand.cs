@@ -12,9 +12,8 @@ public class GenerateCommand(GenerateOptions options) : ICommand
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<IEntitiesStatementGeneratorFactory, EntitiesInsertStatementGeneratorFactory>();
-        services.AddSingleton<EfSeeder>();
-        var dependenciesLoader = ProjectDependenciesLoader.Create(new ProjectAssemblyLoaderOptions()
+        services.AddSingleton<EfSeederBuilder>();
+        var dependenciesLoader = ProjectDependenciesLoader.Create(new ProjectAssemblyLoaderOptions
         {
             Path = options.Project,
             NoBuild = options.NoBuild,
@@ -27,11 +26,15 @@ public class GenerateCommand(GenerateOptions options) : ICommand
 
     public async Task<int> Run(IServiceProvider services)
     {
-        var seeder = services.GetRequiredService<EfSeeder>();
+        var seederBuilder = services.GetRequiredService<EfSeederBuilder>();
         var context = services.GetRequiredService<DbContext>();
         var seed = services.GetRequiredService<IDatabaseSeed>();
         var seedDefinition = seed.GenerateDefinition();
-        var script = seeder.CreateSeedScript(context, seedDefinition.Seed);
+        var seeder = seederBuilder
+            .WithDbContext(context)
+            .WithMode(options.Mode ?? GenerationMode.Insert)
+            .Build();
+        var script = seeder.CreateSeedScript(seedDefinition.Seed);
         await Console.Out.WriteAsync(script);
         return 0;
     }

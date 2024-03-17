@@ -1,4 +1,5 @@
 ﻿using CommandLine;
+using EFSeed.Core.StatementGenerators;
 
 namespace EFSeed.Cli.Generate;
 
@@ -9,4 +10,6 @@ public class GenerateOptions : Options
     public bool NoBuild { get; set; }
     [Option("project", HelpText = "The project to use. If not specified, the current directory is used.")]
     public string? Project { get; set; }
+    [Option("mode", HelpText = $"The generation mode to use. Possible values: insert, merge. If not specified, insert mode will be used.")]
+    public GenerationMode? Mode { get; set; }
 }

@@ -7,8 +7,6 @@ namespace EFSeed.Core.UnitTests;
 public class EfSeederTests : IClassFixture<InMemoryDatabase>
 {
     private IDatabase _database;
-    private static readonly IEntitiesStatementGeneratorFactory Insert = new EntitiesInsertStatementGeneratorFactory();
-    private static readonly IEntitiesStatementGeneratorFactory Merge = new EntitiesMergeStatementGeneratorFactory();
 
     public EfSeederTests(InMemoryDatabase database)
     {
@@ -18,29 +16,27 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
     [Fact]
     public void Should_Throw_When_Context_Is_Null()
     {
-        var seeder = new EfSeeder(Insert);
-        var seed = new List<List<dynamic>>();
-        Assert.Throws<ArgumentNullException>(() => seeder.CreateSeedScript(null, seed));
+        Assert.Throws<ArgumentNullException>(() => new EfSeederBuilder().WithDbContext(null).Build());
     }
 
     [Fact]
     public void Should_Throw_When_Seed_Is_Null()
     {
         using var context = _database.CreateDbContext();
-        var seeder = new EfSeeder(Insert);
-        Assert.Throws<ArgumentNullException>(() => seeder.CreateSeedScript(context, null));
+        var seeder = new EfSeederBuilder().WithDbContext(context).Build();
+        Assert.Throws<ArgumentNullException>(() => seeder.CreateSeedScript(null));
     }
 
     [Fact]
     public void Should_Throw_When_List_In_Seed_Is_Not_Homogenous()
     {
         using var context = _database.CreateDbContext();
-        var seeder = new EfSeeder(Insert);
+        var seeder = new EfSeederBuilder().WithDbContext(context).Build();
         var seed = new List<List<dynamic>>
         {
             new () { new Person {}, new Country { } },
         };
-        Assert.Throws<ArgumentException>(() => seeder.CreateSeedScript(context, seed));
+        Assert.Throws<ArgumentException>(() => seeder.CreateSeedScript(seed));
     }
 
     public static IEnumerable<object[]> SeedAndExpectedInsertScript()
@@ -103,8 +99,8 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
     public void Should_Create_Valid_Insert_Script(IEnumerable<IEnumerable<dynamic>> seed, string expected)
     {
         using var context = _database.CreateDbContext();
-        var seeder = new EfSeeder(Insert);
-        var script = seeder.CreateSeedScript(context, seed);
+        var seeder = new EfSeederBuilder().WithDbContext(context).Build();
+        var script = seeder.CreateSeedScript(seed);
         Assert.Equal(expected, script);
     }
 
@@ -210,8 +206,11 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
     public void Should_Create_Valid_Merge_Script(IEnumerable<IEnumerable<dynamic>> seed, string expected)
     {
         using var context = _database.CreateDbContext();
-        var seeder = new EfSeeder(Merge);
-        var script = seeder.CreateSeedScript(context, seed);
+        var seeder = new EfSeederBuilder()
+            .WithDbContext(context)
+            .WithMode(GenerationMode.Merge)
+            .Build();
+        var script = seeder.CreateSeedScript(seed);
         Assert.Equal(expected, script);
     }
 }

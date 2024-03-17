@@ -19,14 +19,14 @@ public class EfSeederTests : IClassFixture<MssqlDatabase>
     [Fact]
     public void Should_Execute_Insert_Script()
     {
-        var seeder = new EfSeeder(new EntitiesInsertStatementGeneratorFactory());
+        using var context = _database.CreateDbContext();
+        context.Database.EnsureCreated();
+        var seeder = new EfSeederBuilder().WithDbContext(_database.CreateDbContext()).Build();
         var seed = new List<List<Country>>
         {
             new() { new Country { Id = 1, Name = "Atlantis" }, new Country { Id = 2, Name = "Lythania" } }
         };
-        using var context = _database.CreateDbContext();
-        context.Database.EnsureCreated();
-        var script = seeder.CreateSeedScript(context, seed);
+        var script = seeder.CreateSeedScript(seed);
         var output = context.Database.ExecuteSqlRaw(script);
         Assert.Equal(2, output);
     }
@@ -34,14 +34,14 @@ public class EfSeederTests : IClassFixture<MssqlDatabase>
     [Fact]
     public void Should_Execute_Merge_Script()
     {
-        var seeder = new EfSeeder(new EntitiesMergeStatementGeneratorFactory());
+        using var context = _database.CreateDbContext();
+        context.Database.EnsureCreated();
+        var seeder = new EfSeederBuilder().WithDbContext(_database.CreateDbContext()).Build();
         var seed = new List<List<Country>>
         {
             new() { new Country { Id = 1, Name = "Atlantis" }, new Country { Id = 2, Name = "Lythania" } }
         };
-        using var context = _database.CreateDbContext();
-        context.Database.EnsureCreated();
-        var script = seeder.CreateSeedScript(context, seed);
+        var script = seeder.CreateSeedScript(seed);
         var output = context.Database.ExecuteSqlRaw(script);
         Assert.Equal(2, output);
     }

@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EFSeed.Core.StatementGenerators;
 
-public class EntitiesMergeStatementGenerator : IEntitiesStatementGenerator
+internal class EntityMergeStatementGenerator : IEntityStatementGenerator
 {
     private readonly DbContext _dbContext;
 
-    public EntitiesMergeStatementGenerator(DbContext dbContext)
+    public EntityMergeStatementGenerator(DbContext dbContext)
     {
         _dbContext = dbContext;
     }

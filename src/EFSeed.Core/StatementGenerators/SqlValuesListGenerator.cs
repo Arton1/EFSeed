@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFSeed.Core.StatementGenerators;
 
-public class SqlValuesListGenerator
+internal class SqlValuesListGenerator
 {
     private readonly List<IProperty> _properties;
 

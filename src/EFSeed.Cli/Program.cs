@@ -14,7 +14,14 @@ var builder = Host.CreateDefaultBuilder(args)
         logging.SetMinimumLevel(LogLevel.None);
     });
 
-var options = Parser.Default.Parse(args);
+var options = new Parser(with =>
+{
+    with.AutoHelp = true;
+    with.AutoVersion = true;
+    with.HelpWriter = Console.Out;
+    with.CaseInsensitiveEnumValues = true;
+    with.CaseSensitive = false;
+}).Parse(args);
 if (options == null)
 {
     return 1;

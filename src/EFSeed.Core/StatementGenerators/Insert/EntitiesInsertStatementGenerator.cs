@@ -1,13 +1,13 @@
 ﻿using System.Text;
 using Microsoft.EntityFrameworkCore;
 
-namespace EFSeed.Core.StatementGenerators;
+namespace EFSeed.Core.StatementGenerators.Insert;
 
-public class EntitiesInsertStatementGenerator : IEntitiesStatementGenerator
+internal class EntityInsertStatementGenerator : IEntityStatementGenerator
 {
     private readonly DbContext _dbContext;
 
-    public EntitiesInsertStatementGenerator(DbContext dbContext)
+    public EntityInsertStatementGenerator(DbContext dbContext)
     {
         _dbContext = dbContext;
     }

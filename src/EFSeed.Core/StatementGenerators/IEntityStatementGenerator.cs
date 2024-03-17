@@ -1,6 +1,6 @@
 ﻿namespace EFSeed.Core.StatementGenerators;
 
-public interface IEntitiesStatementGenerator
+internal interface IEntityStatementGenerator
 {
     string Generate(List<dynamic> entities);
 }
