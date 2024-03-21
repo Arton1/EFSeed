@@ -3,11 +3,11 @@ using EFSeed.Core.StatementGenerators;
 
 namespace EFSeed.Cli.Commands.Generate;
 
-[Verb("generate", HelpText = "Generates seed data." )]
+[Verb("generate", HelpText = "Generates sql script." )]
 public class GenerateOptions : Options
 {
-    [Option("no-build", Required = false)]
+    [Option("mode", HelpText = $"Generation mode to use. Available modes: insert, merge.", Required = true)]
+    public GenerationMode Mode { get; set; }
+    [Option("no-build", Required = false, HelpText = "Do not build the project before generating the script.")]
     public bool NoBuild { get; set; }
-    [Option("mode", HelpText = $"The generation mode to use. Possible values: insert, merge. If not specified, insert mode will be used.")]
-    public GenerationMode? Mode { get; set; }
 }

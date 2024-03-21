@@ -1,6 +1,5 @@
 ﻿using EFSeed.Cli.Load;
 using EFSeed.Core;
-using EFSeed.Core.StatementGenerators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,7 +30,7 @@ public class GenerateCommand(GenerateOptions options) : ICommand
         var seedDefinition = seed.GenerateDefinition();
         var seeder = seederBuilder
             .WithDbContext(context)
-            .WithMode(options.Mode ?? GenerationMode.Insert)
+            .WithMode(options.Mode)
             .Build();
         var script = seeder.CreateSeedScript(seedDefinition.Seed);
         await Console.Out.WriteAsync(script);
