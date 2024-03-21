@@ -49,7 +49,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "INSERT INTO Country (Id, Name)\n" +
             "VALUES\n" +
-            "(1, 'Atlantis')\n\n" +
+            "(1, N'Atlantis')\n\n" +
             "SET IDENTITY_INSERT Country OFF;\n\n" +
             "COMMIT;"
         ];
@@ -59,8 +59,8 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "INSERT INTO Country (Id, Name)\n" +
             "VALUES\n" +
-            "(1, 'Atlantis'),\n" +
-            "(2, 'Lythania')\n\n" +
+            "(1, N'Atlantis'),\n" +
+            "(2, N'Lythania')\n\n" +
             "SET IDENTITY_INSERT Country OFF;\n\n" +
             "COMMIT;"
         ];
@@ -74,13 +74,13 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
            "SET IDENTITY_INSERT Country ON;\n\n" +
            "INSERT INTO Country (Id, Name)\n" +
            "VALUES\n" +
-           "(1, 'Atlantis'),\n" +
-           "(2, 'Lythania')\n\n" +
+           "(1, N'Atlantis'),\n" +
+           "(2, N'Lythania')\n\n" +
            "SET IDENTITY_INSERT Country OFF;\n" +
            "SET IDENTITY_INSERT Country ON;\n\n" +
            "INSERT INTO Country (Id, Name)\n" +
            "VALUES\n" +
-           "(3, 'Zoytaria')\n\n" +
+           "(3, N'Zoytaria')\n\n" +
            "SET IDENTITY_INSERT Country OFF;\n\n" +
            "COMMIT;"
         ];
@@ -91,12 +91,12 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "INSERT INTO Country (Id, Name)\n" +
             "VALUES\n" +
-            "(1, 'Atlantis')\n\n" +
+            "(1, N'Atlantis')\n\n" +
             "SET IDENTITY_INSERT Country OFF;\n" +
             "SET IDENTITY_INSERT Animal ON;\n\n" +
             "INSERT INTO Animal (Id, Age, ClassId, Name)\n" +
             "VALUES\n" +
-            "(1, 3, 10, 'Beabaul')\n\n" +
+            "(1, 3, 10, N'Beabaul')\n\n" +
             "SET IDENTITY_INSERT Animal OFF;\n\n" +
             "COMMIT;"
         ];
@@ -107,12 +107,12 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
                "SET IDENTITY_INSERT Country ON;\n\n" +
                "INSERT INTO Country (Id, Name)\n" +
                "VALUES\n" +
-               "(1, 'Atlantis')\n\n" +
+               "(1, N'Atlantis')\n\n" +
                "SET IDENTITY_INSERT Country OFF;\n" +
                "SET IDENTITY_INSERT City ON;\n\n" +
                "INSERT INTO City (Id, CountryId, Name)\n" +
                "VALUES\n" +
-               "(1, 1, 'Aetherwind')\n\n" +
+               "(1, 1, N'Aetherwind')\n\n" +
                "SET IDENTITY_INSERT City OFF;\n\n" +
                "COMMIT;"
         ];
@@ -122,7 +122,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
         }, "BEGIN TRANSACTION;\n\n" +
            "INSERT INTO PhoneModel (Id, SerialNumber, Size)\n" +
            "VALUES\n" +
-           "(1, 'S0G5AL', 16.5)\n\n" +
+           "(1, N'S0G5AL', 16.5)\n\n" +
            "COMMIT;"
         ];
     }
@@ -147,7 +147,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
             "USING (VALUES\n" +
-            "(1, 'Atlantis')\n" +
+            "(1, N'Atlantis')\n" +
             ") AS SOURCE (Id, Name)\n" +
             "ON Target.Id = Source.Id\n" +
             "WHEN MATCHED THEN\n" +
@@ -164,8 +164,8 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
             "USING (VALUES\n" +
-            "(1, 'Atlantis'),\n" +
-            "(2, 'Lythania')\n" +
+            "(1, N'Atlantis'),\n" +
+            "(2, N'Lythania')\n" +
             ") AS SOURCE (Id, Name)\n" +
             "ON Target.Id = Source.Id\n" +
             "WHEN MATCHED THEN\n" +
@@ -186,8 +186,8 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
             "USING (VALUES\n" +
-            "(1, 'Atlantis'),\n" +
-            "(2, 'Lythania')\n" +
+            "(1, N'Atlantis'),\n" +
+            "(2, N'Lythania')\n" +
             ") AS SOURCE (Id, Name)\n" +
             "ON Target.Id = Source.Id\n" +
             "WHEN MATCHED THEN\n" +
@@ -199,7 +199,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
             "USING (VALUES\n" +
-            "(3, 'Zoytaria')\n" +
+            "(3, N'Zoytaria')\n" +
             ") AS SOURCE (Id, Name)\n" +
             "ON Target.Id = Source.Id\n" +
             "WHEN MATCHED THEN\n" +
@@ -217,7 +217,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
             "USING (VALUES\n" +
-            "(1, 'Atlantis')\n" +
+            "(1, N'Atlantis')\n" +
             ") AS SOURCE (Id, Name)\n" +
             "ON Target.Id = Source.Id\n" +
             "WHEN MATCHED THEN\n" +
@@ -229,7 +229,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Animal ON;\n\n" +
             "MERGE INTO Animal AS TARGET\n" +
             "USING (VALUES\n" +
-            "(1, 3, 10, 'Beabaul')\n" +
+            "(1, 3, 10, N'Beabaul')\n" +
             ") AS SOURCE (Id, Age, ClassId, Name)\n" +
             "ON Target.Id = Source.Id\n" +
             "WHEN MATCHED THEN\n" +
@@ -245,7 +245,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "BEGIN TRANSACTION;\n\n" +
             "MERGE INTO PhoneModel AS TARGET\n" +
             "USING (VALUES\n" +
-            "(1, 'S0G5AL', 16.5)\n" +
+            "(1, N'S0G5AL', 16.5)\n" +
             ") AS SOURCE (Id, SerialNumber, Size)\n" +
             "ON Target.Id = Source.Id\n" +
             "WHEN MATCHED THEN\n" +

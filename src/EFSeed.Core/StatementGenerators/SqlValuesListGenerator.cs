@@ -34,7 +34,7 @@ internal class SqlValuesListGenerator
         return convertedValue switch
         {
             null => "NULL",
-            string text => $"'{text.Replace("'", "''")}'",
+            string text => $"N'{text.Replace("'", "''")}'",
             DateTime date => $"'{date:yyyy-MM-dd HH:mm:ss}'",
             bool b => b ? "1" : "0",
             decimal d => d.ToString(CultureInfo.InvariantCulture),
