@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFSeed.Core.StatementGenerators;
 
@@ -24,8 +25,12 @@ internal class EntityMergeStatementGenerator : IEntityStatementGenerator
         var tableName = entityModel.GetTableName();
         var tableRef = schema == null ? tableName : $"{schema}.{tableName}";
         var columns = entityModel.GetProperties().Select(p => p.GetColumnName()).ToList();
+        var isIdentityInsert = entityModel.HasIdentityInsert();
         var script = new StringBuilder();
-        script.Append($"SET IDENTITY_INSERT {tableRef} ON;\n\n");
+        if (isIdentityInsert)
+        {
+            script.Append($"SET IDENTITY_INSERT {tableRef} ON;\n\n");
+        }
         script.Append($"MERGE INTO {tableRef} AS TARGET\nUSING (VALUES\n");
         var valuesListGenerator = new SqlValuesListGenerator(entityModel);
         foreach (var entity in entities)
@@ -52,7 +57,10 @@ internal class EntityMergeStatementGenerator : IEntityStatementGenerator
         script.Append(")\nVALUES (");
         script.Append(string.Join(", ", columns.Select(c => $"Source.{c}")));
         script.Append(");");
-        script.Append($"\n\nSET IDENTITY_INSERT {tableRef} OFF;");
+        if (isIdentityInsert)
+        {
+            script.Append($"\n\nSET IDENTITY_INSERT {tableRef} OFF;");
+        }
         return script.ToString();
     }
 

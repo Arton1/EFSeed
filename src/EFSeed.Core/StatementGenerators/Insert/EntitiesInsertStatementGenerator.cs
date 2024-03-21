@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace EFSeed.Core.StatementGenerators.Insert;
 
@@ -24,8 +25,12 @@ internal class EntityInsertStatementGenerator : IEntityStatementGenerator
         var tableName = entityModel.GetTableName();
         var tableRef = schema == null ? tableName : $"{schema}.{tableName}";
         var columns = entityModel.GetProperties().Select(p => p.GetColumnName());
+        var isIdentityInsert = entityModel.HasIdentityInsert();
         var script = new StringBuilder();
-        script.Append($"SET IDENTITY_INSERT {tableRef} ON;\n\n");
+        if (isIdentityInsert)
+        {
+            script.Append($"SET IDENTITY_INSERT {tableRef} ON;\n\n");
+        }
         script.Append($"INSERT INTO {tableRef} (");
         script.Append(string.Join(", ", columns));
         script.Append(")\nVALUES\n");
@@ -42,7 +47,10 @@ internal class EntityInsertStatementGenerator : IEntityStatementGenerator
             script.Append(",\n");
         }
         script.Remove(script.Length - 2, 2);
-        script.Append($"\n\nSET IDENTITY_INSERT {tableRef} OFF;");
+        if (isIdentityInsert)
+        {
+            script.Append($"\n\nSET IDENTITY_INSERT {tableRef} OFF;");
+        }
         return script.ToString();
     }
 }

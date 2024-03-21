@@ -86,7 +86,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
         ];
         yield return [new List<List<dynamic>> {
             new() { new Country() { Id = 1, Name = "Atlantis" } },
-            new() { new Animal() { Id = 1, Name = "Beabaul", Age = 3, Species = "Dog"} }
+            new() { new Animal() { Id = 1, Name = "Beabaul", ClassId = AnimalClassType.Mammal, Age = 3} }
         }, "BEGIN TRANSACTION;\n\n" +
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "INSERT INTO Country (Id, Name)\n" +
@@ -94,9 +94,9 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "(1, 'Atlantis')\n\n" +
             "SET IDENTITY_INSERT Country OFF;\n" +
             "SET IDENTITY_INSERT Animal ON;\n\n" +
-            "INSERT INTO Animal (Id, Age, Name, Species)\n" +
+            "INSERT INTO Animal (Id, Age, ClassId, Name)\n" +
             "VALUES\n" +
-            "(1, 3, 'Beabaul', 'Dog')\n\n" +
+            "(1, 3, 10, 'Beabaul')\n\n" +
             "SET IDENTITY_INSERT Animal OFF;\n\n" +
             "COMMIT;"
         ];
@@ -115,6 +115,15 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
                "(1, 1, 'Aetherwind')\n\n" +
                "SET IDENTITY_INSERT City OFF;\n\n" +
                "COMMIT;"
+        ];
+        // Id is not an identity column, but is a primary key
+        yield return [new List<List<PhoneModel>>() { new () {
+             new PhoneModel { Id = 1, Size = 16.5m, SerialNumber = "S0G5AL" }}
+        }, "BEGIN TRANSACTION;\n\n" +
+           "INSERT INTO PhoneModel (Id, SerialNumber, Size)\n" +
+           "VALUES\n" +
+           "(1, 'S0G5AL', 16.5)\n\n" +
+           "COMMIT;"
         ];
     }
 
@@ -203,7 +212,7 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
         ];
         yield return [new List<List<dynamic>> {
             new() { new Country() { Id = 1, Name = "Atlantis" } },
-            new() { new Animal() { Id = 1, Name = "Beabaul", Age = 3, Species = "Dog"} } },
+            new() { new Animal() { Id = 1, Name = "Beabaul", ClassId = AnimalClassType.Mammal, Age = 3} } },
             "BEGIN TRANSACTION;\n\n" +
             "SET IDENTITY_INSERT Country ON;\n\n" +
             "MERGE INTO Country AS TARGET\n" +
@@ -220,15 +229,30 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
             "SET IDENTITY_INSERT Animal ON;\n\n" +
             "MERGE INTO Animal AS TARGET\n" +
             "USING (VALUES\n" +
-            "(1, 3, 'Beabaul', 'Dog')\n" +
-            ") AS SOURCE (Id, Age, Name, Species)\n" +
+            "(1, 3, 10, 'Beabaul')\n" +
+            ") AS SOURCE (Id, Age, ClassId, Name)\n" +
             "ON Target.Id = Source.Id\n" +
             "WHEN MATCHED THEN\n" +
-            "UPDATE SET Target.Age = Source.Age, Target.Name = Source.Name, Target.Species = Source.Species\n" +
+            "UPDATE SET Target.Age = Source.Age, Target.ClassId = Source.ClassId, Target.Name = Source.Name\n" +
             "WHEN NOT MATCHED THEN\n" +
-            "INSERT (Id, Age, Name, Species)\n" +
-            "VALUES (Source.Id, Source.Age, Source.Name, Source.Species);\n\n" +
+            "INSERT (Id, Age, ClassId, Name)\n" +
+            "VALUES (Source.Id, Source.Age, Source.ClassId, Source.Name);\n\n" +
             "SET IDENTITY_INSERT Animal OFF;\n\n" +
+            "COMMIT;"
+        ];
+        yield return [new List<List<PhoneModel>>() {
+            new List<PhoneModel>() { new PhoneModel { Id = 1, Size = 16.5m, SerialNumber = "S0G5AL" }} },
+            "BEGIN TRANSACTION;\n\n" +
+            "MERGE INTO PhoneModel AS TARGET\n" +
+            "USING (VALUES\n" +
+            "(1, 'S0G5AL', 16.5)\n" +
+            ") AS SOURCE (Id, SerialNumber, Size)\n" +
+            "ON Target.Id = Source.Id\n" +
+            "WHEN MATCHED THEN\n" +
+            "UPDATE SET Target.SerialNumber = Source.SerialNumber, Target.Size = Source.Size\n" +
+            "WHEN NOT MATCHED THEN\n" +
+            "INSERT (Id, SerialNumber, Size)\n" +
+            "VALUES (Source.Id, Source.SerialNumber, Source.Size);\n\n" +
             "COMMIT;"
         ];
     }

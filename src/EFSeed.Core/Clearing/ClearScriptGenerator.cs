@@ -2,6 +2,11 @@
 
 internal class ClearScriptGenerator
 {
+    public ClearScriptGenerator()
+    {
+
+    }
+
     public string Generate()
     {
         throw new NotImplementedException();

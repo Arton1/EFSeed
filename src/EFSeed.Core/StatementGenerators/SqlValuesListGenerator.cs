@@ -20,7 +20,7 @@ internal class SqlValuesListGenerator
         foreach (var property in _properties)
         {
             var value = entity.GetType().GetProperty(property.Name)?.GetValue(entity);
-            script.Append($"{FormatValue(value)}, ");
+            script.Append($"{FormatValue(value, property)}, ");
         }
         script.Remove(script.Length - 2, 2);
         script.Append(")");
@@ -28,8 +28,10 @@ internal class SqlValuesListGenerator
     }
 
     // Have to generate SQL values instead of using parametrized queries
-    private string FormatValue(object value) =>
-        value switch
+    private string FormatValue(object? value, IProperty property)
+    {
+        var convertedValue = ConvertValue(value, property);
+        return convertedValue switch
         {
             null => "NULL",
             string text => $"'{text.Replace("'", "''")}'",
@@ -42,6 +44,11 @@ internal class SqlValuesListGenerator
             byte[] bArr => "0x" + BitConverter.ToString(bArr).Replace("-", ""),
             Guid g => $"'{g}'",
             TimeSpan ts => $"'{ts:c}'",
-            _ => value.ToString()!
+            _ => convertedValue.ToString()!
         };
+    }
+
+    // handles mainly enum types
+    private object? ConvertValue(object? value, IProperty property) =>
+        property.FindTypeMapping()?.Converter?.ConvertToProvider.Invoke(value) ?? value;
 }
