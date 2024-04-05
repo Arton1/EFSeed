@@ -55,7 +55,7 @@ public class EfSeederBuilder
         var statementGeneratorFactory = new EntityStatementGeneratorFactory(_dbContext);
         var statementGenerator = statementGeneratorFactory.Create(_mode);
         var seedScriptGenerator = new SeedScriptGenerator(statementGenerator);
-        var clearScriptGenerator = new ClearScriptGenerator();
+        var clearScriptGenerator = new ClearScriptGenerator(_dbContext);
         var seeder = new EfSeeder(seedScriptGenerator, clearScriptGenerator);
         _isBuilt = true;
         return seeder;

@@ -25,12 +25,11 @@ public class ClearCommand(ClearOptions options) : ICommand
     {
         var seederBuilder = services.GetRequiredService<EfSeederBuilder>();
         var context = services.GetRequiredService<DbContext>();
-        // var seed = services.GetRequiredService<IDatabaseSeed>();
-        // var seedDefinition = seed.GenerateDefinition();
         var seeder = seederBuilder
             .WithDbContext(context)
             .Build();
-        await seeder.ClearDatabase();
+        var script = seeder.CreateClearScript();
+        await Console.Out.WriteAsync(script);
         return 0;
     }
 }

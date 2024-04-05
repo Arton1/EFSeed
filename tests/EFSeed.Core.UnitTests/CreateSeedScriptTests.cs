@@ -4,11 +4,11 @@ using EFSeed.Core.UnitTests.Utils;
 
 namespace EFSeed.Core.UnitTests;
 
-public class EfSeederTests : IClassFixture<InMemoryDatabase>
+public class CreateSeedScriptTests : IClassFixture<InMemoryDatabase>
 {
     private IDatabase _database;
 
-    public EfSeederTests(InMemoryDatabase database)
+    public CreateSeedScriptTests(InMemoryDatabase database)
     {
         _database = database;
     }

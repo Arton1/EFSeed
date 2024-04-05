@@ -20,8 +20,5 @@ public class EfSeeder
         return _seedScriptGenerator.Generate(seed);
     }
 
-    public async Task ClearDatabase()
-    {
-        _clearScriptGenerator.Generate();
-    }
+    public string CreateClearScript() => _clearScriptGenerator.Generate();
 }
