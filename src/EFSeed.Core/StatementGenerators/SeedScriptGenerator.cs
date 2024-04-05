@@ -28,7 +28,7 @@ internal class SeedScriptGenerator
             if (entitiesScript.Length > 0)
             {
                 script.Append(entitiesScript);
-                script.Append("\n");
+                script.Append("\n\n");
                 hasData = true;
             }
         }
@@ -36,7 +36,6 @@ internal class SeedScriptGenerator
         {
             return "";
         }
-        script.Append("\n");
         script.Append("COMMIT;");
         return script.ToString();
     }

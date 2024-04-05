@@ -29,6 +29,10 @@ public class EFSeedTestDbContext(DbContextOptions options) : DbContext(options)
             .HasConversion<int>();
 
         modelBuilder.Entity<Animal>()
+            .Property(x => x.NameLength)
+            .HasComputedColumnSql("LEN(Name)");
+
+        modelBuilder.Entity<Animal>()
             .HasOne(x => x.Class)
             .WithMany()
             .HasForeignKey(x => x.ClassId)
@@ -49,6 +53,7 @@ public class City
 {
     public int Id { get; set; }
     public string Name { get; set; }
+
     public int CountryId { get; set; }
     public Country Country { get; set; }
     public List<Person> People { get; set; }
@@ -65,6 +70,7 @@ public class Animal
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public long NameLength { get; }
     public int Age { get; set; }
 
     [Timestamp]
