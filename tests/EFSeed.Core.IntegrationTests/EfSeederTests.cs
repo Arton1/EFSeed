@@ -15,34 +15,41 @@ public class EfSeederTests : IClassFixture<MssqlDatabase>
         _database = database;
     }
 
-
-    [Fact]
-    public void Should_Execute_Insert_Script()
+    [Theory]
+    [InlineData(GenerationMode.Insert)]
+    [InlineData(GenerationMode.Merge)]
+    public void Should_Execute_Insert_Script(GenerationMode mode)
     {
-        using var context = _database.CreateDbContext();
-        context.Database.EnsureCreated();
-        var seeder = new EfSeederBuilder().WithDbContext(_database.CreateDbContext()).Build();
+        using var context = _database.CreateCleanDbContext();
+        var seeder = new EfSeederBuilder()
+            .WithMode(mode)
+            .WithDbContext(context)
+            .Build();
         var seed = new List<List<Country>>
         {
             new() { new Country { Id = 1, Name = "Atlantis" }, new Country { Id = 2, Name = "Lythania" } }
         };
         var script = seeder.CreateSeedScript(seed);
-        var output = context.Database.ExecuteSqlRaw(script);
-        Assert.Equal(2, output);
+        var actual = context.Database.ExecuteSqlRaw(script);
+        Assert.Equal(2, actual);
     }
 
-    [Fact]
-    public void Should_Execute_Merge_Script()
+    [Theory]
+    [InlineData(GenerationMode.Insert)]
+    [InlineData(GenerationMode.Merge)]
+    public void Should_Execute_Seed_In_Database_Seed_Class(GenerationMode mode)
     {
-        using var context = _database.CreateDbContext();
-        context.Database.EnsureCreated();
-        var seeder = new EfSeederBuilder().WithDbContext(_database.CreateDbContext()).Build();
-        var seed = new List<List<Country>>
-        {
-            new() { new Country { Id = 1, Name = "Atlantis" }, new Country { Id = 2, Name = "Lythania" } }
-        };
+        using var context = _database.CreateCleanDbContext();
+        var seeder = new EfSeederBuilder()
+            .WithMode(mode)
+            .WithDbContext(context)
+            .Build();
+        var seed = new CustomDatabaseSeed().GenerateDefinition().Seed;
+
         var script = seeder.CreateSeedScript(seed);
-        var output = context.Database.ExecuteSqlRaw(script);
-        Assert.Equal(2, output);
+        var actual = context.Database.ExecuteSqlRaw(script);
+
+        var expected = seed.SelectMany(x => x).Count();
+        Assert.Equal(expected, actual);
     }
 }

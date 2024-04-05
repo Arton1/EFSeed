@@ -12,23 +12,28 @@ public class MssqlDatabase : IDatabase, IAsyncLifetime
     {
         var container = new MsSqlBuilder().Build();
         await container.StartAsync();
+        var dbContext = CreateDbContext(container.GetConnectionString());
+        await dbContext.Database.EnsureCreatedAsync();
         _container = container;
     }
 
-    public DbContext CreateDbContext()
+    private DbContext CreateDbContext(string connectionString)
     {
-        if (_container is null)
-        {
-            throw new InvalidOperationException("Database is not initialized");
-        }
-
-        var connectionString = _container.GetConnectionString();
         var options = new DbContextOptionsBuilder<EFSeedTestDbContext>()
-            .UseSqlServer(connectionString)
+            .UseSqlServer($"{connectionString};Persist Security Info=true")
             .Options;
-        var context = new EFSeedTestDbContext(options);
+        return new EFSeedTestDbContext(options);
+    }
 
-        return context;
+    public DbContext CreateCleanDbContext()
+    {
+        if (_container == null)
+        {
+            throw new InvalidOperationException("Container is not initialized");
+        }
+        var dbContext = CreateDbContext(_container!.GetConnectionString());
+        // TODO: Clean db tables
+        return dbContext;
     }
 
     public async Task DisposeAsync()
