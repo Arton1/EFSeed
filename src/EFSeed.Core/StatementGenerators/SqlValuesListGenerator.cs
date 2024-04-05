@@ -8,9 +8,9 @@ internal class SqlValuesListGenerator
 {
     private readonly List<IProperty> _properties;
 
-    public SqlValuesListGenerator(IEntityType entityModel)
+    public SqlValuesListGenerator(List<IProperty> properties)
     {
-        _properties = entityModel.GetProperties().ToList();
+        _properties = properties;
     }
 
     public string Generate(object entity)

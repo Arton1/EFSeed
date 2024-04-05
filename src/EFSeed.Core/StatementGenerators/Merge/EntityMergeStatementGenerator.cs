@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace EFSeed.Core.StatementGenerators;
+namespace EFSeed.Core.StatementGenerators.Merge;
 
 internal class EntityMergeStatementGenerator : IEntityStatementGenerator
 {
@@ -24,7 +24,10 @@ internal class EntityMergeStatementGenerator : IEntityStatementGenerator
         var schema = entityModel.GetSchema();
         var tableName = entityModel.GetTableName();
         var tableRef = schema == null ? tableName : $"{schema}.{tableName}";
-        var columns = entityModel.GetProperties().Select(p => p.GetColumnName()).ToList();
+        var includedProperties = entityModel
+            .GetProperties()
+            .Where(x => x.ValueGenerated != ValueGenerated.OnAddOrUpdate)
+            .ToList();
         var isIdentityInsert = entityModel.HasIdentityInsert();
         var script = new StringBuilder();
         if (isIdentityInsert)
@@ -32,7 +35,7 @@ internal class EntityMergeStatementGenerator : IEntityStatementGenerator
             script.Append($"SET IDENTITY_INSERT {tableRef} ON;\n\n");
         }
         script.Append($"MERGE INTO {tableRef} AS TARGET\nUSING (VALUES\n");
-        var valuesListGenerator = new SqlValuesListGenerator(entityModel);
+        var valuesListGenerator = new SqlValuesListGenerator(includedProperties);
         foreach (var entity in entities)
         {
             var valuesList = valuesListGenerator.Generate(entity);
@@ -40,9 +43,10 @@ internal class EntityMergeStatementGenerator : IEntityStatementGenerator
         }
         script.Remove(script.Length - 2, 2);
         script.Append("\n) AS SOURCE (");
+        var columns = includedProperties.Select(x => x.GetColumnName()).ToList();
         script.Append(string.Join(", ", columns));
         script.Append(")\nON Target.Id = Source.Id\nWHEN MATCHED THEN\nUPDATE SET ");
-        foreach (var property in entityModel.GetProperties())
+        foreach (var property in includedProperties)
         {
             if (property.IsPrimaryKey())
             {

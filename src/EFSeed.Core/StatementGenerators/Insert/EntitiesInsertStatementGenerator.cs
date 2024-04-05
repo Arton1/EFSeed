@@ -24,7 +24,10 @@ internal class EntityInsertStatementGenerator : IEntityStatementGenerator
         var schema = entityModel.GetSchema();
         var tableName = entityModel.GetTableName();
         var tableRef = schema == null ? tableName : $"{schema}.{tableName}";
-        var columns = entityModel.GetProperties().Select(p => p.GetColumnName());
+        var includedProperties = entityModel.GetProperties()
+            // Exclude computed columns
+            .Where(prop => prop.ValueGenerated != ValueGenerated.OnAddOrUpdate)
+            .ToList();
         var isIdentityInsert = entityModel.HasIdentityInsert();
         var script = new StringBuilder();
         if (isIdentityInsert)
@@ -32,9 +35,9 @@ internal class EntityInsertStatementGenerator : IEntityStatementGenerator
             script.Append($"SET IDENTITY_INSERT {tableRef} ON;\n\n");
         }
         script.Append($"INSERT INTO {tableRef} (");
-        script.Append(string.Join(", ", columns));
+        script.Append(string.Join(", ", includedProperties.Select(prop => prop.GetColumnName())));
         script.Append(")\nVALUES\n");
-        var valuesListGenerator = new SqlValuesListGenerator(entityModel);
+        var valuesListGenerator = new SqlValuesListGenerator(includedProperties);
         foreach (var entity in entities)
         {
             var entityType = entity.GetType() as Type;

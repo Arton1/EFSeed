@@ -84,6 +84,26 @@ public class EfSeederTests : IClassFixture<InMemoryDatabase>
            "SET IDENTITY_INSERT Country OFF;\n\n" +
            "COMMIT;"
         ];
+        yield return
+        [
+            new List<List<dynamic>>
+            {
+                new() { new Animal {
+                    Id = 1,
+                    Name = "Beabaul",
+                    ClassId = AnimalClassType.Mammal,
+                    Age = 3,
+                    RowVer = [0x01, 0x02, 0x03] // Should ignore
+                }}
+            },
+            "BEGIN TRANSACTION;\n\n" +
+            "SET IDENTITY_INSERT Animal ON;\n\n" +
+            "INSERT INTO Animal (Id, Age, ClassId, Name)\n" +
+            "VALUES\n" +
+            "(1, 3, 10, N'Beabaul')\n\n" +
+            "SET IDENTITY_INSERT Animal OFF;\n\n" +
+            "COMMIT;"
+        ];
         yield return [new List<List<dynamic>> {
             new() { new Country() { Id = 1, Name = "Atlantis" } },
             new() { new Animal() { Id = 1, Name = "Beabaul", ClassId = AnimalClassType.Mammal, Age = 3} }

@@ -1,4 +1,5 @@
 ﻿using EFSeed.Core.StatementGenerators.Insert;
+using EFSeed.Core.StatementGenerators.Merge;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFSeed.Core.StatementGenerators;

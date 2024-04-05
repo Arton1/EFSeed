@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFSeed.Core.Tests.Common;
@@ -65,6 +66,9 @@ public class Animal
     public int Id { get; set; }
     public string Name { get; set; }
     public int Age { get; set; }
+
+    [Timestamp]
+    public byte[] RowVer { get; set; }
 
     public AnimalClassType ClassId { get; set; }
     public AnimalClass Class { get; set; }
