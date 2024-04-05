@@ -2,6 +2,7 @@
 
 namespace EFSeed.Core.Clearing;
 
+// https://www.jimmybogard.com/how-respawn-works/
 internal class ClearScriptGenerator
 {
     private readonly DbContext _db;
@@ -13,10 +14,11 @@ internal class ClearScriptGenerator
 
     public string Generate()
     {
+        var model = _db.Model;
+        var entities = model.GetEntityTypes().ToList();
+        var deletionSorter = new EntitiesDeletionSorter();
+        var sortedEntities = deletionSorter.SortForDeletion(entities);
 
-        // Implement it like Respawn does, but by using DbContext.Model instead
-        // Ensure proper order of deletion, so that foreign key constraints are not violated
-        // Take into account cyclic dependencies
         return "";
     }
 }
